@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gadget>
+  <name>Home Assistant Sensors</name>
+  <namespace>karpach</namespace>
+  <version>1.0.0.0</version>
+  <author>Viktar Karpach</author>
+  <copyright>&#169; 2025</copyright>
+  <description>Widget that displays home assistant sensors.</description>
+  <hosts>
+    <host name="sidebar" width="220" height="80">
+      <base type="HTML" apiVersion="1.0.0" src="main.html" />
+      <permissions>Full</permissions>
+      <platform minPlatformVersion="1.0" />
+      <autoscaleDPI>true</autoscaleDPI>
+    </host>  
+  </hosts>  
+</gadget>

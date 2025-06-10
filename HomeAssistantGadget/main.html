@@ -1,0 +1,223 @@
+<html>
+<head>
+  <title>Home Assistant Sensors</title>
+  <style>
+    body {          
+      color: #ccc;  
+      background-color: #080808;       
+      font-family: Segoe UI, Arial, sans-serif;
+      font-size: 16px;
+      width: 195px;
+      height: 110px;
+      margin: 0;      
+      align-items: center;           
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+    #container {
+      display: block;    
+      background-image: url(bg_110.png);  
+      background-repeat: no-repeat;                             
+      background-size: cover;
+      height: 110px;      
+    }
+    #content {      
+      display: block;      
+      height: 106px;
+      padding: 5px;
+      margin: 2px;      
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#080808', GradientType=0);      
+    }
+    #sensors {
+      line-height: 1.7;
+    }
+    #errorMsg {
+      color: #FFD700;
+      font-size: 14px;      
+      display: none; /* Hidden by default */
+    }
+  </style>
+  <script type="text/javascript" src="json2.js"></script>
+  <script>
+    // === USER CONFIGURATION ===
+    var homeAssistantUrl = System.Gadget.Settings.read('ha_url') || '';
+    var longLivedToken = System.Gadget.Settings.read('ha_long_lived_token') || '';
+    var radonSensorEntityId = 'sensor.radon_sensor_radon';
+    var temperatureSensorEntityId = 'sensor.kids_bedroom_temperature';
+    // ==========================
+
+    function checkSettings() {
+      var result = false;
+      if (!longLivedToken || longLivedToken.length < 10 && !homeAssistantUrl || homeAssistantUrl.length < 10) {
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('sensors').style.display = 'none';
+      } else {
+        document.getElementById('errorMsg').style.display = 'none'; 
+        document.getElementById('sensors').style.display = 'block';               
+        result = true;
+      }
+      return result;
+    }
+
+    function setRadonDotColor(value) {
+      var dot = document.getElementById('radon-dot');
+      var num = parseFloat(value);
+      if (isNaN(num)) {
+        dot.style.color = '#ccc'; // gray for unknown
+        return;
+      }
+      if (num < 2.7) {
+        dot.style.color = '#3CB371'; // green
+      } else if (num <= 4) {
+        dot.style.color = '#FFD700'; // yellow
+      } else if (num > 4) {
+        dot.style.color = '#FF6347'; // red
+      }
+    }
+
+    function fetchRadonValue() {
+      var xhr = null;
+      if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+      } else if (window.ActiveXObject) {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      if (!xhr) {
+        document.getElementById('radon-value').innerText = 'XHR Error';
+        setRadonDotColor('');
+        return;
+      }
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var elem = document.getElementById('radon-value');
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var value = data.state;
+              if (data.attributes && data.attributes.unit_of_measurement) {
+                value += ' ' + data.attributes.unit_of_measurement;
+              }
+              elem.innerText = value;
+              setRadonDotColor(data.state);                  
+            } catch (e) {
+              elem.innerText = 'Parse Error: ' + e.message;
+              setRadonDotColor('');
+            }
+          } else {
+            var errorMsg = 'HTTP Error: ' + xhr.status;
+            if (xhr.statusText) {
+              errorMsg += ' (' + xhr.statusText + ')';
+            }
+            if (xhr.responseText) {
+              errorMsg += ' - ' + xhr.responseText;
+            }
+            elem.innerText = errorMsg;
+            setRadonDotColor('');
+          }
+        }
+      };
+
+      var url = homeAssistantUrl + '/api/states/' + radonSensorEntityId;
+      // Prevent IE8 from caching the request by adding a cache-busting parameter
+      url += (url.indexOf('?') === -1 ? '?' : '&') + '_ts=' + (new Date()).getTime();
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + longLivedToken);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send();
+    }
+
+    function setTemperatureValue(value) {
+      var elem = document.getElementById('temperature-value');
+      elem.innerText = value;
+    }
+
+    function fetchTemperatureValue() {
+      var xhr = null;
+      if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+      } else if (window.ActiveXObject) {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      if (!xhr) {
+        document.getElementById('temperature-value').innerText = 'XHR Error';
+        return;
+      }
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var elem = document.getElementById('temperature-value');
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var value = data.state;
+              if (data.attributes && data.attributes.unit_of_measurement) {
+                value += ' ' + data.attributes.unit_of_measurement;
+              }
+              elem.innerText = value;
+            } catch (e) {
+              elem.innerText = 'Parse Error: ' + e.message;
+            }
+          } else {
+            var errorMsg = 'HTTP Error: ' + xhr.status;
+            if (xhr.statusText) {
+              errorMsg += ' (' + xhr.statusText + ')';
+            }
+            if (xhr.responseText) {
+              errorMsg += ' - ' + xhr.responseText;
+            }
+            elem.innerText = errorMsg;
+          }
+        }
+      };
+      var url = homeAssistantUrl + '/api/states/' + temperatureSensorEntityId;
+      url += (url.indexOf('?') === -1 ? '?' : '&') + '_ts=' + (new Date()).getTime();
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + longLivedToken);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send();
+    }
+
+    function updateAll() {
+      if (!checkSettings()) {
+        return;
+      }
+      fetchRadonValue();
+      fetchTemperatureValue();
+    }   
+
+    System.Gadget.onSettingsClosed = function(event)
+    {
+        if(event.closeAction == event.Action.commit)
+        {  
+            homeAssistantUrl = System.Gadget.Settings.read('ha_url') || '';
+            longLivedToken = System.Gadget.Settings.read('ha_long_lived_token') || '';
+            updateAll();
+        }
+    }
+
+    window.onload = updateAll;
+    System.Gadget.settingsUI = "settings.html";
+    // Update every 1 minute
+    window.setInterval(updateAll, 60000);
+  </script>
+</head>
+<body>
+  <div id="container">
+      <div id="content">
+          <img src="Homeassistant.png" alt="Home Assistant" style="height:24px;width:24px;vertical-align:middle;margin-right:8px;float:left;" />
+          <h1 style="line-height:24px;margin-left:32px;">Home Assistant</h1>
+          <div id="sensors">
+            Radon: <span id="radon-value">Loading...</span><span id="radon-dot" style="font-size:16px;margin-left:8px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
+            Temperature: <span id="temperature-value">Loading...</span>          
+          </div>          
+          <span id="errorMsg">No token or url found. <br/> Please update settings</span>
+      </div>  
+  </div>  
+</body>
+</html>
