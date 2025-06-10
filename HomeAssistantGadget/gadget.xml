@@ -3,15 +3,22 @@
   <name>Home Assistant Sensors</name>
   <namespace>karpach</namespace>
   <version>1.0.0.0</version>
-  <author>Viktar Karpach</author>
+  <author name="Viktar Karpach">      
+      <info url="www.karpach.com" />
+		  <logo src="icon.png" />
+  </author>
   <copyright>&#169; 2025</copyright>
   <description>Widget that displays home assistant sensors.</description>
+  <icons>
+    <icon height="128" width="128" src="icon.png" />
+  </icons>
   <hosts>
     <host name="sidebar" width="220" height="80">
       <base type="HTML" apiVersion="1.0.0" src="main.html" />
       <permissions>Full</permissions>
       <platform minPlatformVersion="1.0" />
-      <autoscaleDPI>true</autoscaleDPI>
+      <autoscaleDPI>true</autoscaleDPI>      
+      <defaultImage src="icon.png" />
     </host>  
   </hosts>  
 </gadget>
