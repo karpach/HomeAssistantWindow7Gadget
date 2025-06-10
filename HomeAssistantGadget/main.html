@@ -101,6 +101,11 @@
             try {
               var data = JSON.parse(xhr.responseText);
               var value = data.state;
+              if (value === 'unavailable') {
+                elem.innerText = 'n/a';
+                setRadonDotColor('');
+                return;
+              }
               if (data.attributes && data.attributes.unit_of_measurement) {
                 value += ' ' + data.attributes.unit_of_measurement;
               }
