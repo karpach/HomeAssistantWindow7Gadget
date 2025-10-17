@@ -8,7 +8,7 @@
       font-family: Segoe UI, Arial, sans-serif;
       font-size: 16px;
       width: 195px;
-      height: 110px;
+      height: 135px;
       margin: 0;      
       align-items: center;           
     }
@@ -22,10 +22,10 @@
     }
     #container {
       display: block;    
-      background-image: url(bg_110.png);  
+      background-image: url(bg_135.png);  
       background-repeat: no-repeat;                             
       background-size: cover;
-      height: 110px;      
+      height: 135px;      
     }
     #content {      
       display: block;      
@@ -50,6 +50,7 @@
     var longLivedToken = System.Gadget.Settings.read('ha_long_lived_token') || '';
     var radonSensorEntityId = 'sensor.radon_sensor_radon';
     var temperatureSensorEntityId = 'sensor.kids_bedroom_temperature';
+	var co2SensorEntityId = 'sensor.esp_monitor_backlight_office_co2';
     // ==========================
 
     function checkSettings() {
@@ -79,7 +80,7 @@
       } else if (num > 4) {
         dot.style.color = '#FF6347'; // red
       }
-    }
+    }	
 
     function fetchRadonValue() {
       var xhr = null;
@@ -130,6 +131,79 @@
       };
 
       var url = homeAssistantUrl + '/api/states/' + radonSensorEntityId;
+      // Prevent IE8 from caching the request by adding a cache-busting parameter
+      url += (url.indexOf('?') === -1 ? '?' : '&') + '_ts=' + (new Date()).getTime();
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + longLivedToken);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send();
+    }
+	
+	function setCO2DotColor(value) {
+      var dot = document.getElementById('co2-dot');
+      var num = parseFloat(value);
+      if (isNaN(num)) {
+        dot.style.color = '#ccc'; // gray for unknown
+        return;
+      }
+      if (num < 1000) {
+        dot.style.color = '#3CB371'; // green
+      } else if (num <= 1500) {
+        dot.style.color = '#FFD700'; // yellow
+      } else if (num > 1500) {
+        dot.style.color = '#FF6347'; // red
+      }
+    }
+	
+	function fetchCO2Value() {
+      var xhr = null;
+      if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+      } else if (window.ActiveXObject) {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      if (!xhr) {
+        document.getElementById('co2-value').innerText = 'XHR Error';
+        setCO2DotColor('');
+        return;
+      }
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var elem = document.getElementById('co2-value');
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var value = data.state;
+              if (value === 'unavailable') {
+                elem.innerText = 'n/a';
+                setCO2DotColor('');
+                return;
+              }
+              if (data.attributes && data.attributes.unit_of_measurement) {
+                value += ' ' + data.attributes.unit_of_measurement;
+              }
+              elem.innerText = value;
+              setCO2DotColor(data.state);                  
+            } catch (e) {
+              elem.innerText = 'Parse Error: ' + e.message;
+              setCO2DotColor('');
+            }
+          } else {
+            var errorMsg = 'HTTP Error: ' + xhr.status;
+            if (xhr.statusText) {
+              errorMsg += ' (' + xhr.statusText + ')';
+            }
+            if (xhr.responseText) {
+              errorMsg += ' - ' + xhr.responseText;
+            }
+            elem.innerText = errorMsg;
+            setCO2DotColor('');
+          }
+        }
+      };
+
+      var url = homeAssistantUrl + '/api/states/' + co2SensorEntityId;
       // Prevent IE8 from caching the request by adding a cache-busting parameter
       url += (url.indexOf('?') === -1 ? '?' : '&') + '_ts=' + (new Date()).getTime();
       xhr.open('GET', url, true);
@@ -193,6 +267,7 @@
         return;
       }
       fetchRadonValue();
+	  fetchCO2Value();
       fetchTemperatureValue();
     }   
 
@@ -219,6 +294,7 @@
           <h1 style="line-height:24px;margin-left:32px;">Home Assistant</h1>
           <div id="sensors">
             Radon: <span id="radon-value">Loading...</span><span id="radon-dot" style="font-size:16px;margin-left:8px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
+			CO2: <span id="co2-value">Loading...</span><span id="co2-dot" style="font-size:16px;margin-left:8px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
             Temperature: <span id="temperature-value">Loading...</span>          
           </div>          
           <span id="errorMsg">No token or url found. <br/> Please update settings</span>

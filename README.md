@@ -34,6 +34,7 @@ A Windows 7 Sidebar Gadget for displaying Home Assistant sensor data (e.g., rado
 
 ## Development
 - Use the `dev-deploy-gadget.ps1` script to quickly redeploy changes during development.
+- Url for background generation https://www.generateit.net/rounded-corner/rounded.php?sh=r&r=6&bw=1&bc=BBBBBB&bgc=080808&fgc=080808&w=195&h=135&f=png&aa=1&bgo=0&bo=100&fgo=0&tc=FFFFFF
 
 ## License
 See [LICENSE](LICENSE).
