@@ -17,7 +17,7 @@
       <base type="HTML" apiVersion="1.0.0" src="main.html" />
       <permissions>Full</permissions>
       <platform minPlatformVersion="1.0" />
-      <autoscaleDPI>true</autoscaleDPI>      
+      <autoscaleDPI>true</autoscaleDPI>
       <defaultImage src="icon.png" />
     </host>  
   </hosts>  

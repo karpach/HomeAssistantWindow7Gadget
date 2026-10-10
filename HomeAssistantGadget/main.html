@@ -6,40 +6,39 @@
       color: #ccc;  
       background-color: #080808;       
       font-family: Segoe UI, Arial, sans-serif;
-      font-size: 16px;
-      width: 195px;
-      height: 135px;
+      font-size: 12px;
+      width: 125px;
+      height: 96px;
       margin: 0;      
       align-items: center;           
     }
     h1 {
-      font-size: 18px;
+      font-size: 12px;
       margin: 0;
       padding: 0;
       color: #fff;
       text-align: left;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
     #container {
       display: block;    
-      background-image: url(bg_135.png);  
+      filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='bg_135.png', sizingMethod='scale');  
       background-repeat: no-repeat;                             
-      background-size: cover;
-      height: 135px;      
+      height: 96px;
     }
     #content {      
       display: block;      
-      height: 106px;
-      padding: 5px;
+      height: 78px;
+      padding: 3px;
       margin: 2px;      
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#080808', GradientType=0);      
     }
     #sensors {
-      line-height: 1.7;
+      line-height: 1.5;
     }
     #errorMsg {
       color: #FFD700;
-      font-size: 14px;      
+      font-size: 12px;
       display: none; /* Hidden by default */
     }
   </style>
@@ -290,11 +289,11 @@
 <body>
   <div id="container">
       <div id="content">
-          <img src="Homeassistant.png" alt="Home Assistant" style="height:24px;width:24px;vertical-align:middle;margin-right:8px;float:left;" />
-          <h1 style="line-height:24px;margin-left:32px;">Home Assistant</h1>
+          <img src="Homeassistant.png" alt="Home Assistant" style="height:16px;width:16px;vertical-align:middle;margin-right:5px;float:left;" />
+          <h1 style="line-height:16px;margin-left:21px;">Home Assistant</h1>
           <div id="sensors">
-            Radon: <span id="radon-value">Loading...</span><span id="radon-dot" style="font-size:16px;margin-left:8px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
-			CO2: <span id="co2-value">Loading...</span><span id="co2-dot" style="font-size:16px;margin-left:8px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
+            Radon: <span id="radon-value">Loading...</span><span id="radon-dot" style="font-size:12px;margin-left:5px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
+			CO2: <span id="co2-value">Loading...</span><span id="co2-dot" style="font-size:12px;margin-left:5px;vertical-align:middle;color:#ccc;">&#9679;</span><br/>
             Temperature: <span id="temperature-value">Loading...</span>          
           </div>          
           <span id="errorMsg">No token or url found. <br/> Please update settings</span>
